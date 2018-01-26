@@ -1,24 +1,32 @@
 
 package synchronizacjawatkow;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
     public class Main {
 
-        public static void main(String[] args) 
+        public static void main(String[] args) throws InterruptedException 
         {
-//           Object lock = new Object();
-//
-//           Thread watek1 = new Thread (new WypisanieRunnable(lock), "Wątek 1");
-//           Thread watek2 = new Thread (new WypisanieRunnable(lock), "Wątek 2");
-//
-//           watek1.start();
-//           watek2.start();
+           Lock lock = new ReentrantLock();
+
+           Thread watek1 = new Thread (new WypisanieRunnable(lock), "Wątek 1");
+           Thread watek2 = new Thread (new WypisanieRunnable(lock), "Wątek 2");
+
+           watek1.start();
+           
+            // watek1.join();
+            System.out.println(Thread.currentThread().getName());
+            System.out.println("Wątek numer 1 został zakończony!");
+           
+           watek2.start();
             
-            Counter licznik = new Counter();
-            
-            Thread watek3 = new Thread(new CounterRunnable(licznik,false),"Maleje");
-            Thread watek4 = new Thread(new CounterRunnable(licznik,true),"Rośnie");
-            watek3.start();
-            watek4.start();
+//            Counter licznik = new Counter();
+//            
+//            Thread watek3 = new Thread(new CounterRunnable(licznik,false),"Maleje");
+//            Thread watek4 = new Thread(new CounterRunnable(licznik,true),"Rośnie");
+//            watek3.start();
+//            watek4.start();
 
         }
 
@@ -27,10 +35,10 @@ package synchronizacjawatkow;
         class WypisanieRunnable implements Runnable
         {
             static String msg[] = {"To", "jest", "synchronicznie", "wypisana", "wiadomość!"};
-            private Object lock;
+            private Lock lock;
 
 
-            public WypisanieRunnable(Object lock)
+            public WypisanieRunnable(Lock lock)
             {
                 this.lock = lock;
             }
@@ -42,7 +50,8 @@ package synchronizacjawatkow;
 
             public void display(String threadName)
             {
-                synchronized(lock)
+                lock.lock();
+                try
                 {
                 for (int i =0; i < msg.length; i++)
                 {
@@ -57,6 +66,10 @@ package synchronizacjawatkow;
                         System.out.println(e.getMessage());
                     }
                 }
+                }
+                finally
+                {
+                   lock.unlock();     
                 }
             }
 
